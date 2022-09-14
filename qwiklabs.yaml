@@ -1,0 +1,55 @@
+entity_type: Lab
+schema_version: 2
+default_local: en
+
+title: FortiGate: Automating deployment and configuration using Terraform
+
+description: "Learn how to automate deployment and configuration of FortiGate using Terraform."
+
+duration: 45
+level: Intermediate
+tags: [gcp, terraform, fortigate, firewall, security, network, infrastructure as code]
+
+instruction:
+  type: md
+  uri: instructions/en.md
+
+resources:
+- type: link
+  id: fos-provider
+  title:
+    locales:
+      en: FortiOS terraform provider documentation
+  uri:
+    locales:
+      en: https://registry.terraform.io/providers/fortinetdev/fortios/latest/docs
+
+environment:
+  resources:
+  - type: gcp_project
+    id: main_project
+  - type: gcp_user
+    id: user
+    permissions:
+    - project: main_project
+      roles:
+      - roles/compute.admin
+      - roles/editor
+  - type: cloud_terminal
+    id: shell
+    permissions:
+    - project: main_project
+      roles:
+      - roles/editor
+  student_visible_outputs:
+  - label: "GCP Username"
+    reference: user.username
+  - label: "GCP Password"
+    reference: user:password
+
+assessment:
+  passing_percentage: 100
+  steps:
+  - title: Clone repository
+  - title: Deploy FortiGates
+  - title: Deploy protected web application
