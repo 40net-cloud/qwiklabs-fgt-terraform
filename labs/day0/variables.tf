@@ -1,9 +1,4 @@
-variable GCP_PROJECT {
-  type    = string
-  description = "GCP project id"
-}
-
-variable GCE_REGION {
+variable "region" {
   type = string
   description = "GCE region to use"
 }
@@ -11,11 +6,9 @@ variable GCE_REGION {
 variable "prefix" {
   type = string
   description = "Prefix to be added to the names of all created resources"
-  default = "fgt-"
+  default = "qwik-fgt"
 }
 
 provider "google" {
-}
-
-provider "google-beta" {
+    region = var.region
 }
