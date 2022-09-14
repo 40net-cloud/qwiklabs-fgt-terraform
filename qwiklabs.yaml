@@ -51,5 +51,53 @@ assessment:
   passing_percentage: 100
   steps:
   - title: Clone repository
+    maximum_score: 20
+    student_messages:
+      success: Good job! You cloned the necessary terraform code from GitHub.
+      fail: Please clone the repository using git clone command
+    services:
+    - shell.RunRemoteCommand
+    code: |-
+      def check(handles:, maximum_score:, resources:)
+        shell = handles['shell.RunRemoteCommand']
+        response = shell.run_remote_command 'find . --name main.tf'
+        if response.stdout > 0
+          { score: maximum_score, student_message: 'success' }
+        else
+          { score: 0, student_message: 'fail' }
+        end
+      end
   - title: Deploy FortiGates
+    maximum_score: 40
+    student_messages:
+      success: Great! Your FortiGates are running and ready to protect your cloud resources.
+      fail: Please init, plan and apply the day0 terraform module
+    services:
+    - project.ComputeV1
+    code: |-
+      def check(handles:, maximum_score:, resources:)
+        compute = handles['project.ComputeV1']
+        instances = compute.list_aggregated_instances(filter="tags=[fgt]")&.items
+        if instances.count == 2
+          { score: maximum_score, student_message: 'success' }
+        else
+          { score: 0, student_message: 'fail' }
+        end
+      end
   - title: Deploy protected web application
+    maximum_score: 40
+    student_messages:
+      success: Great! Your new web service is protected by FortiGate.
+      fail: Please init, plan and apply the dayN terraform module
+    services:
+    - project.ComputeV1
+    code: |-
+      def check(handles:, maximum_score:, resources:)
+        compute = handles['project.ComputeV1']
+        instances = compute.list_aggregated_instances(filter="name=websrv")&.items
+        if instances.count > 0
+          { score: maximum_score, student_message: 'success' }
+        else
+          { score: 0, student_message: 'fail' }
+        end
+      end
