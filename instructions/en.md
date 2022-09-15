@@ -14,7 +14,14 @@ In this lab you will:
 * Detect and correct FortiGate configuration drift
 * Delete the application and associated firewall configuration
 
+### Architecture
+The final architecture and test connection flow is depicted on the diagram below:  
+![Architecture overview](img/diag-overview.png)
+
+It is a simplified standard architecture described in [Cloud Architecture Center](https://cloud.google.com/architecture/partners/use-terraform-to-deploy-a-fortigate-ngfw?hl=en) with demo web server deployed directly into the firewall's internal subnet.
+
 ### Setup and requirements
+![[/fragments/setup]]
 
 ## Task 1: Cloning repository
 This lab is fully automated using [Terraform by Hashicorp](https://www.terraform.io/). Terraform is one of the most popular tools for managing cloud infrastructure as code (IaC). While each cloud platform offers its own native tools for IaC, Terraform uses a broad open ecosystem of providers allowing creating and managing resources in any platform equipped with a proper API. In this lab you will use [google provider](https://registry.terraform.io/providers/hashicorp/google/latest/docs) (by Google) to manage resources in Google Cloud and [fortios provider](https://registry.terraform.io/providers/fortinetdev/fortios/latest/docs) (by Fortinet) to manage FortiGate configuration.
@@ -34,6 +41,12 @@ For Terraform each directory containing **.tf** files is a module. A directory i
 - dayN
     - app-infra
     - secure-inbound
+
+Using **day0** module you will deploy a standard active-passive HA cluster of 2 FortiGate VM instances with a complete Internal Load Balancer used as next hop for the default custom route on the internal (protected) side and an external backend service (load balancer without any frontends) on the external side. **day0** will also create all the necessary VPC networks and subnets, cloud firewall rules, custom route and a cloud NAT used for outbound connections initiated from FortiGates.
+
+![day0 deployment architecture](img/diag-day0.png)
+
+FortiGates are bootstrapped with an additional firewall policy allowing outbound traffic (defined in **fgt_config** variable for **fortigates** module in **day0/main.tf**). This policy will enable automated provisioning of web server in later steps.
 
 ### Customizing deployment through variables
 Before deploying the **day0** module you have an opportunity to customize it. The module expects an input variable indicating the region to use.
@@ -73,6 +86,27 @@ Once everything is deployed you can connect to the FortiGates to verify they are
 ## Task 3: Deploying demo application
 In this step you will create a new VM and configure it to host a sample web page. While in the production deployments servers are usually deployed to a separate VPC network or even separate projects, this lab creates a single web server VM directly in the same internal subnet to which second network interface of the firewall is connected.
 
+To enable access to the web server VM, **dayN** module utilizes a sample submodule (**secure-inbound**) to create a new external IP address, assign it as a frontend to the external load balancer and configure FortiGates with a new firewall policy and a virtual IP address for destination NAT.
+
+![dayN deployment architecture](img/diag-dayn.png)
+
+Note how leveraging a reusable submodule can abstract creation of all necessary resources in Google Cloud and in FortiGate.
+```
+module "secure_inbound" {
+  source       = "./secure-inbound"
+
+  prefix       = "${var.prefix}"
+  protocol     = "TCP"
+  port         = 80
+  target_ip    = module.app.app_ip
+  target_port  = 80
+
+  region       = data.terraform_remote_state.day0.outputs.region
+  elb_bes      = data.terraform_remote_state.day0.outputs.elb_bes
+}
+```
+
+### Deploy web server and FortiGate configuration changes to existing environment
 To deploy the sample web application go back to the cloud shell and issue the following commands:
 1.	`cd ../dayN`
 2.	`terraform init`
