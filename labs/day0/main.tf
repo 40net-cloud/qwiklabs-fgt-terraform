@@ -10,6 +10,11 @@ data "http" "my_ip" {
   url             = "http://api.ipify.org"
 }
 
+# Enable Secret Manager API
+resource "google_project_service" "secretmanager" {
+  service = "secretmanager.googleapis.com"
+}
+
 # Create base deployment of FortiGate HA cluster
 module "fortigates" {
   source          = "./fgcp-ha-ap-lb"
