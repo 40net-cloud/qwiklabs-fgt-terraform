@@ -21,8 +21,8 @@ The final architecture and test connection flow is depicted on the diagram below
 
 It is a simplified standard architecture described in [Cloud Architecture Center](https://cloud.google.com/architecture/partners/use-terraform-to-deploy-a-fortigate-ngfw?hl=en) with demo web server deployed directly into the firewall's internal subnet.
 
-### Setup and requirements
-#### Before you click the Start Lab button
+## Setup and requirements
+### Before you click the Start Lab button
 Read these instructions. Labs are timed and you cannot pause them. The timer, which starts when you click **Start Lab**, shows how long Google Cloud resources will be made available to you.
 
 This hands-on lab lets you do the lab activities yourself in a real cloud environment, not in a simulation or demo environment. It does so by giving you new, temporary credentials that you use to sign in and access Google Cloud for the duration of the lab.
@@ -35,57 +35,37 @@ To complete this lab, you need:
 * Time to complete the lab---remember, once you start, you cannot pause a lab.  
 > *Note: If you already have your own personal Google Cloud account or project, do not use it for this lab to avoid extra charges to your account.*
 
-#### How to start your lab and sign in to the Google Cloud Console
+### How to start your lab and sign in to the Google Cloud Console
 1. Click the **Start Lab** button. If you need to pay for the lab, a pop-up opens for you to select your payment method. On the left is the **Lab Details** panel with the following:
-    * The **Open Google Console** button
     * Time remaining
-    * The temporary credentials that you must use for this lab
-    * Other information, if needed, to step through this lab
-2. Click **Open Google Console**. The lab spins up resources, and then opens another tab that shows the **Sign in** page.  
+    * Your temporary credentials that you must use for this lab
+    * Your temporary project ID
+    * Links to additional student resources
+2. Open Google Cloud console in new browser tab by clicking the **Google Cloud Console** link in **Student Resources**.
     ***Tip:*** Arrange the tabs in separate windows, side-by-side.
     > *Note: If you see the Choose an account dialog, click Use Another Account.*
 
-3. If necessary, copy the **Username** from the **Lab Details** panel and paste it into the Sign in dialog. Click **Next**.
-4. Copy the Password from the **Lab Details** panel and paste it into the Welcome dialog. Click **Next**.
+3. Copy the **GCP Username** and **Password** from the **Lab Details** panel and paste it into the Sign in dialog. Click **Next**.
     > Important: You must use the credentials from the left panel. Do not use your Google Cloud Skills Boost credentials.
 
     >*Note: Using your own Google Cloud account for this lab may incur extra charges.*
 
-5. Click through the subsequent pages:
+4. Click through the subsequent pages:
     * Accept the terms and conditions.
     * Do not add recovery options or two-factor authentication (because this is a temporary account).
     * Do not sign up for free trials.
+5. At the top bar select the project matching the Project ID in **Lab Details**.
+6. Open the Cloud Shell in new browser tab by clicking the **Google Cloud Shell** link in the **Student Resources** and log in again using **GCP Username** and **Password** from the **Lab Details** panel. Cloud Shell is a virtual machine that is loaded with development tools. It offers a persistent 5GB home directory and runs on the Google Cloud. Cloud Shell provides command-line access to your Google Cloud resources.
+7. Set active project for your Cloud Shell session by typing the command:
 
-After a few moments, the Cloud Console opens in this tab.
+    ```
+    gcloud config set project PROJECT_ID
+    ```
+    replacing PROJECT_ID with the **GCP Project ID** from the **Lab Details** panel.
 
-> *Note: You can view the menu with a list of Google Cloud Products and Services by clicking the Navigation menu at the top-left.*  
-![Navigation menu icon](https://github.com/40net-cloud/qwiklabs-fgt-terraform/raw/main/fragments/setup/img/setup1.png)
+> *Note: For full documentation of gcloud, in Google Cloud, refer to* [*the gcloud CLI overview guide.*](https://cloud.google.com/sdk/gcloud)
 
-#### Activate Cloud Shell
-Cloud Shell is a virtual machine that is loaded with development tools. It offers a persistent 5GB home directory and runs on the Google Cloud. Cloud Shell provides command-line access to your Google Cloud resources.
-
-1. Click **Activate Cloud Shell** ![Activate Cloud Shell icon](https://github.com/40net-cloud/qwiklabs-fgt-terraform/raw/main/fragments/setup/img/setup2.png) at the top of the Google Cloud console.
-2. Click Continue.  
-    It takes a few moments to provision and connect to the environment. When you are connected, you are already authenticated, and the project is set to your **PROJECT_ID**. The output contains a line that declares the **PROJECT_ID** for this session.
-
-    `gcloud` is the command-line tool for Google Cloud. It comes pre-installed on Cloud Shell and supports tab-completion.
-
-3. (Optional) You can list the active account name with this command:
-        gcloud auth list  
-    **Output:**  
-        ACTIVE: *
-        ACCOUNT: student-01-xxxxxxxxxxxx@qwiklabs.net
-        To set the active account, run:
-            $ gcloud config set account `ACCOUNT`
-4. (Optional) You can list the project ID with this command:  
-        gcloud config list project  
-    **Output:**
-        [core]  
-        project = <project_ID>  
-    **Example output:**  
-        [core]
-        project = qwiklabs-gcp-44776a13dea667a6
-    > *Note: For full documentation of gcloud, in Google Cloud, refer to [the gcloud CLI overview guide](https://cloud.google.com/sdk/gcloud).*
+***Important:*** *make sure you are logged in using the temporary student username and you use the temporary qwiklab project in both web console and cloud shell. Using your own project and username WILL incur charges.*
 
 
 ## Task 1: Cloning repository
@@ -93,12 +73,19 @@ This lab is fully automated using [Terraform by Hashicorp](https://www.terraform
 
 All code for this lab is hosted in a public git repository. To use it start by creating a local copy of its contents.
 
-1.	Run the following command in your Cloud Shell to clone the git repository contents:  
-    `git clone https://github.com/40net-cloud/qwiklabs-fgt-terraform.git`
-2.	Change current working directory to **labs/day0** inside the cloned repository:  
-    `cd qwiklab-fgt-terraform/labs/day0`
+1.	Run the following command in your Cloud Shell to clone the git repository contents:
 
-For Terraform each directory containing **.tf** files is a module. A directory in which you run terraform command is the *root module* and can contain *submodules*. In this lab you will deploy two root modules: **day0** and **dayN** with each of them containing submodules. The module structure of **labs** in the cloned **qwiklab-fgt-terraform** repository looks as follows:
+    ```
+    git clone https://github.com/40net-cloud/qwiklabs-fgt-terraform.git
+    ```
+2.	Change current working directory to **labs/day0** inside the cloned repository:
+
+    ```
+    cd qwiklab-fgt-terraform/labs/day0
+    ```
+3. In the **Cloud Shell Editor** part of your Cloud Shell tab choose **File > Open** from the top menu and open the **qwiklab-fgt-terraform/labs** folder. Cloud Shell Editor will be useful to navigate, review and edit terraform code during this lab.
+
+For the Terraform, each directory containing **.tf** files is a module. A directory in which you run terraform command is the *root module* and can contain *submodules*. In this lab you will deploy two root modules: **day0** and **dayN** with each of them containing submodules. The module structure of **labs** in the cloned **qwiklab-fgt-terraform** repository looks as follows:
 
 - **labs/day0**
     - **fgcp-ha-ap-lb**
@@ -106,6 +93,7 @@ For Terraform each directory containing **.tf** files is a module. A directory i
 - **labs/dayN**
     - **app-infra**
     - **secure-inbound**
+- **webapp** (does not contain terraform code)
 
 
 ## Task 2: Deploying FortiGate cluster
@@ -125,14 +113,26 @@ As this lab is restricted to use us-central1 region, provide name the region in 
 ### FortiGate cluster deployment
 Terraform deployment consists of 3 steps. Execute them now as described below:
 
-1.	In **day0** directory initialize terraform using command  
-    `terraform init`  
+1.	In **day0** directory initialize terraform using command
+
+    ```  
+    terraform init
+    ```
+
     This will make terraform parse your **.tf** files for submodules and providers, and download necessary additional files. Re-run `terraform init` every time you add or remove providers and submodules
 2.	Build a terraform plan and save it to **tf.plan** file by issuing command  
-    `terraform plan -out tf.plan`  
+
+    ```
+    terraform plan -out tf.plan
+    ```
+
     Terraform plan file describes every resource to be created and dependencies between them. Planning phase also connects to every provider and checks the state file to verify if any of the resources described in the code already exist or have changed. You should always verify the output of `terraform plan` to understand what resources will be created, changed or destroyed.
 3.	Create the resources according to the plan by issuing command  
-    `terraform apply tf.plan`  
+
+    ```
+    terraform apply tf.plan
+    ```
+
     This command will attempt to create, delete or change the resources according to the plan. If run without providing a plan file `terraform apply` will create a new plan and immediately execute it after confirmation from operator. `terraform apply` should be executed every time after the code or variables change.
 
 After `terraform apply` command completes you will see several output values which will be necessary in later steps. Terraform outputs can be used to provide additional information to the operator.
@@ -152,7 +152,7 @@ Once everything is deployed you can connect to the FortiGates to verify they are
 8.	In the menu on the left select **System > HA**  
     In the table you should see two FortiGate instances with different serial numbers and roles marked as “Primary” and “Secondary”. Initially, the secondary instance might be marked as “Out of sync”, but you can continue without waiting for the cluster to synchronize the configuration.
 
-The **day0** module created a cluster and necessary load balancers, but did not create external load balancer frontend. External IP address and its related load balancer frontend will be created in the following step as part of the application deployment. You can verify that the load balancer has not frontend attached by finding it in the GCP web console under the name **fgt-qlabs-bes-elb-us-central1** in **Network services** section under the menu in top-left corner of the console. Use **Search** in the top bar if you cannot find **Network services** in the menu.
+The **day0** module created a cluster and necessary load balancers, but did not create external load balancer frontend. External IP address and its related load balancer frontend will be created in the following step as part of the application deployment. You can verify that the load balancer **fgt-qlabs-bes-elb-us-central1** has no frontend attached in the GCP web console in **Network services** section available under the menu in top-left corner of the console. Use **Search** in the top bar if you cannot find **Network services** in the menu.
 
 You can notice that the external load balancer has no healthy VMs in the backends list. As the health checks are triggered only after adding a frontend this does not indicate any issue with FortiGates or infrastructure configuration.
 
@@ -187,10 +187,12 @@ module "secure_inbound" {
 ### Deploy web server and FortiGate configuration changes to existing environment
 To deploy the sample web application go back to the cloud shell and issue the following commands:
 
-1.	`cd ../dayN`
-2.	`terraform init`
-3.	`terraform plan –out tf.plan`
-4.	`terraform apply tf.plan`
+```
+cd ../dayN
+terraform init
+terraform plan –out tf.plan
+terraform apply tf.plan
+```
 
 This time you didn’t have to provide any variables to terraform, because all necessary values (including the region you selected for **day0** module) were automatically pulled by terraform. The possible mechanisms for sharing data between multiple terraform deployments are described in the next section.
 
@@ -283,11 +285,19 @@ It can happen that the resources managed by the terraform code are changed manua
 
 1.	Connect to FortiGate web console and use menu on the left to navigate to **Policy & Objects > Firewall Policy**. Double-click the **demoapp1-allow** rule in **port1-port2** section, disable all security profiles and save the policy by clicking **OK** button at the bottom.
 2.	In the **dayN** directory in Cloud Shell run the following command:  
-    `terraform plan -refresh-only`  
+
+    ```
+    terraform plan -refresh-only
+    ```
+
     The `-refresh-only` parameter instructs terraform to only indicate the changes but not plan them or update the state.  
     ![Screenshot after "terraform plan -refresh-only"](https://github.com/40net-cloud/qwiklabs-fgt-terraform/raw/main/instructions/img/tfrefreshonly.png)
 3.	To remediate this drift and revert to the configuration described in the terraform file run the   
-    `terraform apply`  
+
+    ```
+    terraform apply
+    ```
+
     command. You can refresh the firewall policy list in FortiGate web console to verify the security profiles were re-enabled.
 4.	Mind that not all configuration changes will be detected. To check it, while in FortiGate Firewall Policy list delete the **allow-all-outbound** policy in **port2-port1** section and run again the terraform plan `-refresh-only` command. This time there was no drift detected.  
     ![Terraform detects no drift - screenshot](https://github.com/40net-cloud/qwiklabs-fgt-terraform/raw/main/instructions/img/tf-nodrift.png)  
@@ -302,9 +312,22 @@ Congratulations, you have successfully deployed and configured FortiGates in Goo
 To revert changes and remove resources you created in this lab do the following:
 
 1.	To delete the demo application: in the Cloud Shell, issue the following command while in **dayN** directory:  
-    `terraform destroy`  
+
+    ```
+    terraform destroy
+    ```
+
     confirm your decision to delete the resources by typing `yes`
 2.	In the Cloud Shell go to the **day0** directory:  
-    `cd ../day0`  
+
+    ```
+    cd ../day0
+    ```
+
     and delete the remaining resources using  
-    `terraform destroy`
+
+    ```
+    terraform destroy
+    ```
+
+3. Click **End Lab** button in **Lab Details** panel.
