@@ -1,6 +1,7 @@
 variable "region" {
   type = string
   description = "GCE region to use"
+  default = "us-central1"
 }
 
 variable "prefix" {
