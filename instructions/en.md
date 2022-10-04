@@ -65,7 +65,7 @@ To complete this lab, you need:
 
 > *Note: For full documentation of gcloud, in Google Cloud, refer to* [*the gcloud CLI overview guide.*](https://cloud.google.com/sdk/gcloud)
 
-***Important:*** *make sure you are logged in using the temporary student username and you use the temporary qwiklab project in both web console and cloud shell. Using your own project and username WILL incur charges.*
+***Important:*** *make sure you are logged in using the temporary student username and you use the temporary qwiklabs project in both web console and cloud shell. Using your own project and username WILL incur charges.*
 
 
 ## Task 1: Cloning repository
@@ -83,11 +83,11 @@ All code for this lab is hosted in a public git repository. To use it start by c
     ```
     cd qwiklabs-fgt-terraform/labs/day0
     ```
-3. In the **Cloud Shell Editor** part of your Cloud Shell tab choose **File > Open** from the top menu and open the **qwiklab-fgt-terraform/labs** folder. Cloud Shell Editor will be useful to navigate, review and edit terraform code during this lab.
+3. In the **Cloud Shell Editor** part of your Cloud Shell tab choose **File > Open** from the top menu and open the **qwiklabs-fgt-terraform/labs** folder. Cloud Shell Editor will be useful to navigate, review and edit terraform code during this lab.
 
 ![Cloud Editor open folder dialog](https://raw.githubusercontent.com/40net-cloud/qwiklabs-fgt-terraform/main/instructions/img/ide-open-folder.png)
 
-For the Terraform, each directory containing **.tf** files is a module. A directory in which you run terraform command is the *root module* and can contain *submodules*. In this lab you will deploy two root modules: **day0** and **dayN** with each of them containing submodules. The module structure of **labs** in the cloned **qwiklab-fgt-terraform** repository looks as follows:
+For the Terraform, each directory containing **.tf** files is a module. A directory in which you run terraform command is the *root module* and can contain *submodules*. In this lab you will deploy two root modules: **day0** and **dayN** with each of them containing submodules. The module structure of **labs** in the cloned **qwiklabs-fgt-terraform** repository looks as follows:
 
 - **labs/day0**
     - **fgcp-ha-ap-lb**
